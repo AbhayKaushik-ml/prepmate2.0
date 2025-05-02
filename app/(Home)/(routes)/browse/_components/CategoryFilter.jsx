@@ -24,20 +24,26 @@ function CategoryFilter() {
     };
 
     return (
-        <div className="flex flex-wrap gap-3">
-            {filterOptions.map((item) => (
-                <button
-                    key={item.id}
-                    className={`border p-2 px-4 text-[12px] rounded-md font-semibold transition-all duration-300 ${
-                        activeFilter === item.value
-                            ? "bg-purple-100 text-purple-800 border-purple-800"
-                            : "hover:border-purple-800 hover:bg-purple-50"
-                    }`}
-                    onClick={() => handleFilterClick(item.value, item.path)}
-                >
-                    {item.name}
-                </button>
-            ))}
+        <div className="glassmorphic dark:bg-black/40 backdrop-blur-md p-4 rounded-xl mb-6 overflow-x-auto">
+            <div className="flex gap-3 min-w-max">
+                {filterOptions.map((item) => (
+                    <button
+                        key={item.id}
+                        className={`
+                            px-5 py-2.5 text-[12px] rounded-full font-semibold
+                            border border-transparent
+                            transition-all duration-300 ease-out
+                            ${activeFilter === item.value
+                                ? "bg-purple-500 dark:bg-purple-600 text-white shadow-lg shadow-purple-500/30 dark:shadow-purple-600/30 neon-glow-purple"
+                                : "hover:bg-purple-100/20 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 dark:text-gray-300"
+                            }
+                        `}
+                        onClick={() => handleFilterClick(item.value, item.path)}
+                    >
+                        {item.name}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 }

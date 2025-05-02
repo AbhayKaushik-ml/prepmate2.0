@@ -29,6 +29,10 @@ export default function RootLayout({ children }) {
               __html: `
                 (function() {
                   try {
+                    // Set dark mode as default if not already set
+                    if (localStorage.getItem('darkMode') === null) {
+                      localStorage.setItem('darkMode', 'true');
+                    }
                     const isDarkMode = localStorage.getItem('darkMode') === 'true';
                     if (isDarkMode) {
                       document.documentElement.classList.add('dark');

@@ -34,7 +34,7 @@ function SideBarNav() {
 
     const [activeIndex, setActiveIndex] = useState(0);
     const [currentPath, setCurrentPath] = useState('');
-    const [darkMode, setDarkMode] = useState(false);
+    const [darkMode, setDarkMode] = useState(true);
     const [enrolledCourses, setEnrolledCourses] = useState([]);
 
     // Function to load enrolled courses from localStorage
@@ -52,9 +52,6 @@ function SideBarNav() {
         // Check if dark mode was previously set
         const isDarkMode = localStorage.getItem('darkMode') === 'true';
         setDarkMode(isDarkMode);
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-        }
         
         // Get current path for highlighting active menu item
         setCurrentPath(window.location.pathname);
@@ -106,18 +103,21 @@ function SideBarNav() {
     };
 
     return (
-        <div className="h-full bg-white dark:bg-gray-800 border-r flex flex-col overflow-y-auto shadow-md backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 transition-colors duration-300">
-            <div className="p-5 border-b dark:border-gray-700">
-                <Image 
-                    src="/abcd.jpg" 
-                    alt="Logo" 
-                    width={100} 
-                    height={100} 
-                    className="object-contain"
-                />
+        <div className="h-full glassmorphic bg-white/90 dark:bg-gray-900/80 border-r border-gray-200 dark:border-gray-800/30 flex flex-col overflow-y-auto transition-all duration-300">
+            <div className="p-5 border-b border-gray-200 dark:border-gray-800/30 flex justify-center">
+                <div className="relative">
+                    <div className={`absolute inset-0 ${darkMode ? 'bg-purple-500/20' : 'bg-blue-500/20'} blur-md rounded-full`}></div>
+                    <Image 
+                        src="/abcd.jpg" 
+                        alt="Logo" 
+                        width={100} 
+                        height={100} 
+                        className="object-contain relative z-10"
+                    />
+                </div>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col mt-4 space-y-2 px-3">
                 {menulist.map((item, index) => (
                     <Link 
                         key={item.id} 
@@ -126,21 +126,22 @@ function SideBarNav() {
                     >
                         <div
                             className={`
-                                flex gap-2 items-center p-4 px-6 
-                                text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 
-                                cursor-pointer transition-colors duration-300
-                                ${activeIndex === index ? "bg-purple-50 dark:bg-purple-900 text-purple-500 dark:text-purple-300" : ""}
+                                flex gap-2 items-center p-3 px-5 rounded-full
+                                ${activeIndex === index 
+                                  ? darkMode 
+                                    ? "bg-purple-500 dark:bg-purple-600 text-white dark:text-white shadow-lg shadow-purple-500/30 dark:shadow-purple-600/30" 
+                                    : "bg-blue-500 text-white shadow-lg shadow-blue-500/30"
+                                  : "text-gray-600 dark:text-gray-300 hover:bg-blue-100/30 dark:hover:bg-purple-900/20 hover:text-blue-600 dark:hover:text-purple-400"}
+                                transition-all duration-300 ease-out
                             `}
                             onClick={() => {
                                 setActiveIndex(index);
-                                // We don't need to update currentPath here as the navigation will change the URL
-                                // and the useEffect will handle the update
                             }}
                             role="button"
                             aria-selected={activeIndex === index}
                         >
-                            <item.icon className="mr-2" />
-                            <h2>{item.name}</h2>
+                            <item.icon className={`w-5 h-5 ${activeIndex === index ? "text-white" : ""}`} />
+                            <h2 className="font-medium">{item.name}</h2>
                         </div>
                     </Link>
                 ))}
@@ -148,9 +149,9 @@ function SideBarNav() {
             
             {/* Your Courses Section */}
             {enrolledCourses.length > 0 && (
-                <div className="mt-6 px-6">
-                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-2">YOUR COURSES</h3>
-                    <div className="flex flex-col space-y-1">
+                <div className="mt-8 px-6">
+                    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3 ml-2">YOUR COURSES</h3>
+                    <div className="flex flex-col space-y-2 px-2">
                         {enrolledCourses.map((course) => {
                             const progress = getCourseProgress(course.id);
                             return (
@@ -159,8 +160,8 @@ function SideBarNav() {
                                     href={`/course-preview/${course.slug}`}
                                     className="group"
                                 >
-                                    <div className="flex items-center p-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-300">
-                                        <BookOpen size={16} className="mr-2 text-purple-500" />
+                                    <div className="flex items-center p-2 pl-3 text-sm text-gray-600 dark:text-gray-300 hover:bg-blue-100/20 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-300">
+                                        <BookOpen size={16} className="mr-2 text-blue-500" />
                                         <span className="truncate">{course.name}</span>
                                         {progress > 0 && (
                                             <div className="ml-auto flex items-center">
@@ -177,17 +178,22 @@ function SideBarNav() {
             )}
             
             {/* Dark Mode Toggle */}
-            <div className="mt-auto p-4 border-t dark:border-gray-700">
+            <div className="mt-auto p-4 border-t border-gray-200 dark:border-gray-800/30">
                 <button 
                     onClick={toggleDarkMode}
-                    className="flex items-center justify-between w-full p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
+                    className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors duration-300"
                 >
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Night Mode</span>
-                    <div className="relative">
-                        {darkMode ? 
-                            <Sun size={18} className="text-yellow-400" /> : 
-                            <Moon size={18} className="text-gray-600" />
-                        }
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {darkMode ? "Light Mode" : "Dark Mode"}
+                    </span>
+                    <div className="relative h-6 w-12 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-300">
+                        <div 
+                            className={`absolute top-1 h-4 w-4 rounded-full transition-all duration-300 ${
+                                darkMode 
+                                    ? "right-1 bg-purple-500 shadow-lg shadow-purple-500/50" 
+                                    : "left-1 bg-blue-500 shadow-lg shadow-blue-500/50"
+                            }`} 
+                        />
                     </div>
                 </button>
             </div>

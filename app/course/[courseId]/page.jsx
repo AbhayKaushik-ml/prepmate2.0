@@ -78,8 +78,8 @@ function Course() {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="animate-pulse flex flex-col gap-8">
-                    <div className="h-12 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-64 bg-gray-100 rounded"></div>
+                    <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
+                    <div className="h-64 bg-gray-100 dark:bg-gray-900 rounded"></div>
                 </div>
             </div>
         );
@@ -88,7 +88,7 @@ function Course() {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded relative">
                     <strong className="font-bold">Error: </strong>
                     <span className="block sm:inline">{error}</span>
                 </div>
@@ -97,7 +97,7 @@ function Course() {
     }
     
     return (
-        <div className="bg-gray-50 min-h-screen pb-12">
+        <div className="min-h-screen pb-12">
             <div className="container mx-auto px-4 py-8">
                 {/* Course header area */}
                 <div className="mb-8">
@@ -117,18 +117,18 @@ function Course() {
                     {/* Main content */}
                     <div className="lg:w-3/4 w-full">
                         {course && (
-                            <div className="bg-white rounded-lg shadow-md p-6">
-                                <h2 className="text-2xl font-bold mb-4">{course.title}</h2>
-                                <div className="text-gray-600 mb-6">
+                            <div className="bg-white dark:bg-gray-900/40 backdrop-blur-md rounded-lg shadow-md p-6 glassmorphic">
+                                <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">{course.title}</h2>
+                                <div className="text-gray-600 dark:text-gray-300 mb-6">
                                     <p>{course.summary || 'No summary available for this course.'}</p>
                                 </div>
                                 
                                 {course?.courseLayout?.chapters?.length > 0 && (
                                     <div className="mt-6">
-                                        <h3 className="text-lg font-semibold mb-2">Start with Chapter 1</h3>
-                                        <p className="text-gray-600 mb-4">{course.courseLayout.chapters[0].chapter_title}</p>
-                                        <div className="bg-gray-50 p-4 rounded-md">
-                                            <p className="text-gray-700">{course.courseLayout.chapters[0].chapter_summary}</p>
+                                        <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">Start with Chapter 1</h3>
+                                        <p className="text-gray-600 dark:text-gray-300 mb-4">{course.courseLayout.chapters[0].chapter_title}</p>
+                                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-md">
+                                            <p className="text-gray-700 dark:text-gray-300">{course.courseLayout.chapters[0].chapter_summary}</p>
                                         </div>
                                     </div>
                                 )}
