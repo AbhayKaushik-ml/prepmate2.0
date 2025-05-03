@@ -59,12 +59,12 @@ function prepai() {
     }
 
     return (
-        <div className='flex flex-col items-center justify-center p-5 md:px-24 lg:px-36 min-h-screen bg-gradient-to-b from-[#0E1324] to-[#1a2342] text-white'>
-            <h2 className='text-white text-3xl font-bold text-center'>Start Building Your Personalized Study Material</h2>
-            <p className='text-white/80 text-lg mt-2'>What's your goal today?</p>
+        <div className='flex flex-col items-center justify-center p-5 md:px-24 lg:px-36 min-h-screen bg-gradient-to-b from-[#0E1324] to-[#1a2342] dark:from-[#0E1324] dark:to-[#1a2342] bg-white text-gray-800 dark:text-white'>
+            <h2 className='text-gray-800 dark:text-white text-3xl font-bold text-center'>Start Building Your Personalized Study Material</h2>
+            <p className='text-gray-600 dark:text-white/80 text-lg mt-2'>What's your goal today?</p>
             
             {error && (
-                <div className='mt-4 p-4 bg-red-900/20 text-red-400 border border-red-800/30 rounded-md'>
+                <div className='mt-4 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800/30 rounded-md'>
                     {error}
                 </div>
             )}
@@ -84,7 +84,7 @@ function prepai() {
                 {step !== 0 ? (
                     <button 
                         onClick={() => setStep(step-1)}
-                        className='px-6 py-2.5 bg-gray-700/50 text-white rounded-full hover:bg-gray-600/50 transition-all duration-200'
+                        className='px-6 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700/50 text-gray-700 dark:text-white rounded-full dark:hover:bg-gray-600/50 transition-all duration-200'
                         disabled={isLoading}
                     >
                         Previous

@@ -1,8 +1,20 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Layout, Mail, Search, Shield, Moon, Sun, BookOpen, User, Bot } from "lucide-react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// Dynamically import icons to reduce initial bundle size
+const Search = dynamic(() => import("lucide-react").then(mod => mod.Search), { ssr: false });
+const Layout = dynamic(() => import("lucide-react").then(mod => mod.Layout), { ssr: false });
+const Mail = dynamic(() => import("lucide-react").then(mod => mod.Mail), { ssr: false });
+const Shield = dynamic(() => import("lucide-react").then(mod => mod.Shield), { ssr: false });
+const Moon = dynamic(() => import("lucide-react").then(mod => mod.Moon), { ssr: false });
+const Sun = dynamic(() => import("lucide-react").then(mod => mod.Sun), { ssr: false });
+const BookOpen = dynamic(() => import("lucide-react").then(mod => mod.BookOpen), { ssr: false });
+const User = dynamic(() => import("lucide-react").then(mod => mod.User), { ssr: false });
+const Bot = dynamic(() => import("lucide-react").then(mod => mod.Bot), { ssr: false });
 
 function SideBarNav() {
     const menulist = [

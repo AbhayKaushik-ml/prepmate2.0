@@ -49,9 +49,32 @@ function StudyMaterialSection() {
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
-        // Check for available study materials from database
-        checkStudyMaterials();
-    }, []);
+        // Check for available study materials from database only if needed
+        // First check if we have flashcards in our materials that need status check
+        const flashcardMaterial = materials.find(m => m.name === "Flashcards");
+        if (flashcardMaterial && flashcardMaterial.status === "Generate") {
+            // Check cache in localStorage first
+            const cachedStatus = localStorage.getItem(`flashcard_status_${courseId}`);
+            const cacheTimestamp = localStorage.getItem(`flashcard_status_timestamp_${courseId}`);
+            const now = new Date().getTime();
+            
+            // If we have a valid cache (less than 5 minutes old), use it
+            if (cachedStatus && cacheTimestamp && (now - parseInt(cacheTimestamp)) < 300000) {
+                if (cachedStatus === "Ready") {
+                    setMaterials(prev => 
+                        prev.map(item => 
+                            item.name === "Flashcards" 
+                                ? {...item, status: "Available"} 
+                                : item
+                        )
+                    );
+                }
+            } else {
+                // No valid cache, check from the server
+                checkStudyMaterials();
+            }
+        }
+    }, [courseId]);
 
     const checkStudyMaterials = async () => {
         try {
@@ -70,6 +93,10 @@ function StudyMaterialSection() {
                             : item
                     )
                 );
+                
+                // Save to cache
+                localStorage.setItem(`flashcard_status_${courseId}`, 'Ready');
+                localStorage.setItem(`flashcard_status_timestamp_${courseId}`, new Date().getTime().toString());
             } else if (response.data && response.data.status === 'Failed') {
                 // If generation previously failed, show Generate button again
                 setMaterials(prev => 
@@ -79,6 +106,10 @@ function StudyMaterialSection() {
                             : item
                     )
                 );
+                
+                // Save to cache
+                localStorage.setItem(`flashcard_status_${courseId}`, 'Failed');
+                localStorage.setItem(`flashcard_status_timestamp_${courseId}`, new Date().getTime().toString());
             }
         } catch (error) {
             console.error("Error checking study materials:", error);

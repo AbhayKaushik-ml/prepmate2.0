@@ -26,39 +26,59 @@ export async function GET(req) {
             // Try to parse the notes content if it's a JSON string
             let content = note.notes;
             let title = `Chapter ${parseInt(note.chapterId, 10) + 1} Notes`;
+            let chapterId = parseInt(note.chapterId, 10) || 0;
             
             try {
                 // Check if it's a JSON string
-                if (typeof content === 'string') {
-                    // First try to parse as JSON
-                    if (content.trim().startsWith('{') || content.trim().startsWith('[')) {
-                        const contentObject = JSON.parse(content);
+                if (typeof content === 'string' && 
+                    (content.trim().startsWith('{') || content.trim().startsWith('['))) {
+                    
+                    const contentObject = JSON.parse(content);
+                    
+                    // Handle our new enhanced format first
+                    if (contentObject && contentObject.content && contentObject.chapter_title) {
+                        content = contentObject.content;
+                        title = contentObject.chapter_title;
                         
-                        // Extract content from various possible JSON structures
-                        if (contentObject && contentObject.content) {
-                            content = contentObject.content;
-                            
-                            // If there's a title in the JSON, use it
-                            if (contentObject.chapter_title) {
-                                title = contentObject.chapter_title;
-                            } else if (contentObject.title) {
-                                title = contentObject.title;
+                        // Use chapter_index if available for better ordering
+                        if (typeof contentObject.chapter_index === 'number') {
+                            chapterId = contentObject.chapter_index;
+                        }
+                    }
+                    // Extract content from various possible JSON structures (legacy format)
+                    else if (contentObject && contentObject.content) {
+                        content = contentObject.content;
+                        
+                        // If there's a title in the JSON, use it
+                        if (contentObject.chapter_title) {
+                            title = contentObject.chapter_title;
+                        } else if (contentObject.title) {
+                            title = contentObject.title;
+                        }
+                    } 
+                    // Handle other JSON formats
+                    else if (contentObject && typeof contentObject === 'object') {
+                        // Look for content in any field
+                        const possibleContentFields = ['text', 'body', 'data', 'note', 'description'];
+                        const possibleTitleFields = ['title', 'name', 'heading', 'subject'];
+                        
+                        for (const field of possibleContentFields) {
+                            if (contentObject[field] && typeof contentObject[field] === 'string') {
+                                content = contentObject[field];
+                                break;
                             }
-                        } else if (contentObject && typeof contentObject === 'object') {
-                            // Look for content in any field
-                            const possibleContentFields = ['text', 'body', 'data', 'note', 'description'];
-                            
-                            for (const field of possibleContentFields) {
-                                if (contentObject[field] && typeof contentObject[field] === 'string') {
-                                    content = contentObject[field];
-                                    break;
-                                }
+                        }
+                        
+                        for (const field of possibleTitleFields) {
+                            if (contentObject[field] && typeof contentObject[field] === 'string') {
+                                title = contentObject[field];
+                                break;
                             }
-                            
-                            // If we still have an object, stringify it
-                            if (typeof content === 'object') {
-                                content = JSON.stringify(contentObject, null, 2);
-                            }
+                        }
+                        
+                        // If we still have an object for content, stringify it
+                        if (typeof content === 'object') {
+                            content = JSON.stringify(contentObject, null, 2);
                         }
                     }
                 }
@@ -77,11 +97,14 @@ export async function GET(req) {
             }
             
             return {
-                chapter_id: parseInt(note.chapterId, 10) || 0,
+                chapter_id: chapterId,
                 title: title,
                 content: content
             };
         });
+        
+        // Sort notes by chapter_id to ensure proper order
+        formattedNotes.sort((a, b) => a.chapter_id - b.chapter_id);
 
         return NextResponse.json(formattedNotes);
     } catch (error) {
