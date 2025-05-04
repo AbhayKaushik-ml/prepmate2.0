@@ -59,7 +59,7 @@ function prepai() {
     }
 
     return (
-        <div className='flex flex-col items-center justify-center p-5 md:px-24 lg:px-36 min-h-screen bg-gradient-to-b from-[#0E1324] to-[#1a2342] dark:from-[#0E1324] dark:to-[#1a2342] bg-white text-gray-800 dark:text-white'>
+        <div className='flex flex-col items-center justify-center p-5 md:px-24 lg:px-36 min-h-screen bg-gradient-to-b from-white to-gray-100 dark:from-[#0E1324] dark:to-[#1a2342] text-gray-800 dark:text-white'>
             <h2 className='text-gray-800 dark:text-white text-3xl font-bold text-center'>Start Building Your Personalized Study Material</h2>
             <p className='text-gray-600 dark:text-white/80 text-lg mt-2'>What's your goal today?</p>
             

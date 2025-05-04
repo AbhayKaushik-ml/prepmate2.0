@@ -20,28 +20,18 @@ const WelcomeBanner = () => {
       <div className="absolute w-1 h-12 bg-cyan-400/70 rounded-full blur-sm animate-pulse-slow" style={{top: '30%', right: '15%', animationDelay: '0.5s'}}></div>
       <div className="absolute w-1 h-6 bg-blue-300/50 rounded-full blur-sm animate-pulse-slow" style={{top: '60%', right: '30%', animationDelay: '1.5s'}}></div>
       
-      <div className="relative z-10 p-8 flex flex-col md:flex-row justify-between items-center">
-        <div className="text-center md:text-left">
+      <div className="relative z-10 p-8">
+        <div className="text-center">
           <div className="relative">
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-1">
               Browse <span className="neon-text">Courses</span>
             </h1>
             <div className="absolute -inset-1 bg-blue-400/20 blur-xl rounded-full z-[-1]"></div>
           </div>
-          <p className="text-blue-100 mt-3 text-xl max-w-md">
+          <p className="text-blue-100 mt-3 text-xl max-w-md mx-auto">
             Explore our library and start learning today
           </p>
         </div>
-        
-        {/* Profile link */}
-        <Link href="/profile" className="mt-6 md:mt-0 flex items-center bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full transition-all duration-300 backdrop-blur-md border border-white/20 group relative overflow-hidden">
-          {/* Button shine effect */}
-          <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine"></div>
-          
-          <UserCircle className="mr-2" size={22} />
-          <span className="font-medium">My Profile</span>
-          <ChevronRight size={16} className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-        </Link>
       </div>
 
       {/* Digital circuit lines for tech feel */}
