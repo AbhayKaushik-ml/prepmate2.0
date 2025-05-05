@@ -69,12 +69,30 @@ export async function POST(req) {
       topics: chapter.topics
     }));
     
-    const PROMPT = `Generate flashcards for a course on: ${course.topic}.
-    Create flashcards for the following chapters and topics:
-    ${JSON.stringify(chapterInfo)}
-    
-    Please provide the flashcards in JSON format with front and back content.
-    Maximum 15 flashcards covering the most important concepts.`;
+    let PROMPT;
+    if (studyType === 'Flashcard') {
+      PROMPT = `Generate flashcards for a course on: ${course.topic}.
+      Create flashcards for the following chapters and topics:
+      ${JSON.stringify(chapterInfo)}
+      
+      Please provide the flashcards in JSON format with front and back content.
+      Maximum 15 flashcards covering the most important concepts.`;
+    } else if (studyType === 'Quiz') {
+      PROMPT = `Generate Quiz for a course on: ${course.topic}. Create a JSON array of quiz questions (maximum 10 questions) covering the following chapters and topics:
+      ${JSON.stringify(chapterInfo)}
+      
+      Each question in the JSON array MUST follow this exact format:
+      {
+        "question": "The question text here?",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "correctAnswer": "The exact text of the correct option here"
+      }
+      
+      Ensure that the "correctAnswer" value exactly matches one of the options in the "options" array.`;
+    } else {
+      await updateStatusToFailed(courseId, studyType, "Invalid study type");
+      return NextResponse.json({ error: "Invalid study type" }, { status: 400 });
+    }
     
     try {
       console.log('Sending request to Gemini API');

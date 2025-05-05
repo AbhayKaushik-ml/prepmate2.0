@@ -43,73 +43,79 @@ function StudyMaterialSection() {
                 </svg>
             ),
             path: `/course/${courseId}/quiz`,
-            status: "Available",
+            status: "Generate",
+            type: "Quiz"
         }
     ]);
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
         // Check for available study materials from database only if needed
-        // First check if we have flashcards in our materials that need status check
-        const flashcardMaterial = materials.find(m => m.name === "Flashcards");
-        if (flashcardMaterial && flashcardMaterial.status === "Generate") {
-            // Check cache in localStorage first
-            const cachedStatus = localStorage.getItem(`flashcard_status_${courseId}`);
-            const cacheTimestamp = localStorage.getItem(`flashcard_status_timestamp_${courseId}`);
-            const now = new Date().getTime();
-            
-            // If we have a valid cache (less than 5 minutes old), use it
-            if (cachedStatus && cacheTimestamp && (now - parseInt(cacheTimestamp)) < 300000) {
-                if (cachedStatus === "Ready") {
-                    setMaterials(prev => 
-                        prev.map(item => 
-                            item.name === "Flashcards" 
-                                ? {...item, status: "Available"} 
-                                : item
-                        )
-                    );
+        // Check for both Flashcards and Quiz materials
+        const materialsToCheck = materials.filter(m => 
+            (m.type === "Flashcard" || m.type === "Quiz") && m.status === "Generate"
+        );
+        
+        if (materialsToCheck.length > 0) {
+            materialsToCheck.forEach(material => {
+                // Check cache in localStorage first
+                const cachedStatus = localStorage.getItem(`${material.type.toLowerCase()}_status_${courseId}`);
+                const cacheTimestamp = localStorage.getItem(`${material.type.toLowerCase()}_status_timestamp_${courseId}`);
+                const now = new Date().getTime();
+                
+                // If we have a valid cache (less than 5 minutes old), use it
+                if (cachedStatus && cacheTimestamp && (now - parseInt(cacheTimestamp)) < 300000) {
+                    if (cachedStatus === "Ready") {
+                        setMaterials(prev => 
+                            prev.map(item => 
+                                item.type === material.type 
+                                    ? {...item, status: "Available"} 
+                                    : item
+                            )
+                        );
+                    }
+                } else {
+                    // No valid cache, check from the server
+                    checkStudyMaterials(material.type);
                 }
-            } else {
-                // No valid cache, check from the server
-                checkStudyMaterials();
-            }
+            });
         }
     }, [courseId]);
 
-    const checkStudyMaterials = async () => {
+    const checkStudyMaterials = async (studyType) => {
         try {
-            // Check if flashcards are available
+            // Check if study material is available
             const response = await axios.post('/api/study-type', {
                 courseId: courseId,
-                studyType: 'Flashcard'
+                studyType: studyType
             });
 
             if (response.data && response.data.status === 'Ready') {
-                // Update flashcards status to Available
+                // Update study material status to Available
                 setMaterials(prev => 
                     prev.map(item => 
-                        item.name === "Flashcards" 
+                        item.type === studyType 
                             ? {...item, status: "Available"} 
                             : item
                     )
                 );
                 
                 // Save to cache
-                localStorage.setItem(`flashcard_status_${courseId}`, 'Ready');
-                localStorage.setItem(`flashcard_status_timestamp_${courseId}`, new Date().getTime().toString());
+                localStorage.setItem(`${studyType.toLowerCase()}_status_${courseId}`, 'Ready');
+                localStorage.setItem(`${studyType.toLowerCase()}_status_timestamp_${courseId}`, new Date().getTime().toString());
             } else if (response.data && response.data.status === 'Failed') {
                 // If generation previously failed, show Generate button again
                 setMaterials(prev => 
                     prev.map(item => 
-                        item.name === "Flashcards" 
+                        item.type === studyType 
                             ? {...item, status: "Generate"} 
                             : item
                     )
                 );
                 
                 // Save to cache
-                localStorage.setItem(`flashcard_status_${courseId}`, 'Failed');
-                localStorage.setItem(`flashcard_status_timestamp_${courseId}`, new Date().getTime().toString());
+                localStorage.setItem(`${studyType.toLowerCase()}_status_${courseId}`, 'Failed');
+                localStorage.setItem(`${studyType.toLowerCase()}_status_timestamp_${courseId}`, new Date().getTime().toString());
             }
         } catch (error) {
             console.error("Error checking study materials:", error);
