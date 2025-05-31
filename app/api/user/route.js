@@ -7,14 +7,19 @@ import { USER_TABLE } from '@/configs/schema';
 export async function POST(request) {
   try {
     // Get request body data first
-    const { clerkId, email, name } = await request.json();
+    const { email, name } = await request.json();
     
     // Validate request
     if (!email) {
       return NextResponse.json({ error: 'Missing required email field' }, { status: 400 });
     }
     
-    console.log('Processing user data:', { clerkId, email, name });
+    // Validate email is Gmail
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      return NextResponse.json({ error: 'Only Gmail addresses are accepted' }, { status: 400 });
+    }
+    
+    console.log('Processing user data:', { email, name });
     
     // Check if user already exists
     let existingUser = await db.select().from(USER_TABLE).where(eq(USER_TABLE.email, email)).limit(1);
@@ -45,7 +50,7 @@ export async function POST(request) {
 export async function GET(request) {
   try {
     const url = new URL(request.url);
-    const email = url.searchParams.get('clerkId');
+    const email = url.searchParams.get('email');
     
     if (!email) {
       return NextResponse.json({ error: 'Missing email parameter' }, { status: 400 });

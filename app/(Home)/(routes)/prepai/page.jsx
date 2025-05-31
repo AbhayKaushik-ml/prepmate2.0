@@ -1,11 +1,10 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { SelectOption } from './_components/SelectOption'
 // import Button from '@/app/(Home)/_components/Button'
 import { Topicinput } from './_components/Topicinput';
 import axios from 'axios';
 import {v4 as uuidv4} from 'uuid';
-import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 function prepai() {
@@ -13,9 +12,24 @@ function prepai() {
     const [formData, setFormData] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { user } = useUser();
+    const [user, setUser] = useState(null);
 
     const router = useRouter();
+    
+    // Get user data from session storage
+    useEffect(() => {
+        const userData = sessionStorage.getItem('prepmate_user');
+        if (userData) {
+            try {
+                setUser(JSON.parse(userData));
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                router.push('/welcome');
+            }
+        } else {
+            router.push('/welcome');
+        }
+    }, [router]);
 
     const handleUserInput = (fieldName, fieldValue) => {
         setFormData(prev => ({...prev, [fieldName]: fieldValue}));
@@ -38,13 +52,13 @@ function prepai() {
             console.log('Sending request with data:', {
                 courseId,
                 ...formData,
-                createdBy: user?.primaryEmailAddress?.emailAddress
+                createdBy: user?.email
             });
 
             const result = await axios.post('/api/generate-course-outline', {
                 courseId,
                 ...formData,
-                createdBy: user?.primaryEmailAddress?.emailAddress
+                createdBy: user?.email
             });
 
             console.log('Course outline generated:', result.data.result.resp);

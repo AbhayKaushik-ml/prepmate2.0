@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { UserButton, useUser } from '@clerk/nextjs';
 import dynamic from "next/dynamic";
 
 // Dynamically import icons to reduce initial bundle size
@@ -13,8 +12,26 @@ const Moon = dynamic(() => import("lucide-react").then(mod => mod.Moon), { ssr: 
 const Sun = dynamic(() => import("lucide-react").then(mod => mod.Sun), { ssr: false });
 
 function TopNavBar() {
-    const { user } = useUser();
+    const [user, setUser] = useState(null);
     const router = useRouter();
+    
+    // Get user from session storage
+    useEffect(() => {
+        const userData = sessionStorage.getItem('prepmate_user');
+        if (userData) {
+            try {
+                setUser(JSON.parse(userData));
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+            }
+        }
+    }, []);
+    
+    // Handle sign out
+    const handleSignOut = () => {
+        sessionStorage.removeItem('prepmate_user');
+        router.push('/welcome');
+    };
     const menulist = [
         {
             id: 1,
@@ -197,19 +214,40 @@ function TopNavBar() {
                         </button>
                         {!user ? 
                             <button 
-                                onClick={() => router.push('/sign-in')}
+                                onClick={() => router.push('/welcome')}
                                 className="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-colors duration-300 shadow-md hover:shadow-lg shadow-purple-500/20"
                             >
                                 Login
                             </button>
                         : 
-                            <UserButton 
-                                appearance={{
-                                    elements: {
-                                        userButtonAvatarBox: "border-2 border-purple-500/50" 
-                                    }
-                                }}
-                            />
+                            <div className="relative group">
+                                <button 
+                                    className="flex items-center space-x-2 focus:outline-none"
+                                    aria-label="User menu"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium border-2 border-purple-500/50">
+                                        {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                                    </div>
+                                </button>
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all duration-200 ease-out scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 origin-top-right">
+                                    <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.name}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => router.push('/profile')}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                    >
+                                        Profile
+                                    </button>
+                                    <button 
+                                        onClick={handleSignOut}
+                                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                    >
+                                        Sign out
+                                    </button>
+                                </div>
+                            </div>
                         }
                     </div>
                     
@@ -217,13 +255,9 @@ function TopNavBar() {
                     <div className="flex md:hidden items-center pr-2">
                         <div className="flex items-center space-x-3">
                             {user && (
-                                <UserButton 
-                                    appearance={{
-                                        elements: {
-                                            userButtonAvatarBox: "border-2 border-purple-500/50" 
-                                        }
-                                    }}
-                                />
+                                <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium border-2 border-purple-500/50">
+                                    {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                                </div>
                             )}
                             <button 
                                 onClick={toggleDarkMode}
@@ -238,7 +272,7 @@ function TopNavBar() {
                             </button>
                             {!user ? 
                                 <button 
-                                    onClick={() => router.push('/sign-in')}
+                                    onClick={() => router.push('/welcome')}
                                     className="px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-colors duration-300 shadow-md hover:shadow-lg shadow-purple-500/20"
                                 >
                                     Login
@@ -293,6 +327,28 @@ function TopNavBar() {
                                 {item.name}
                             </Link>
                         ))}
+                        
+                        {/* User info and sign-out for mobile menu */}
+                        {user && (
+                            <div className="w-full flex flex-col items-center space-y-2 mb-4">
+                                <div className="flex flex-col items-center">
+                                    <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold mb-2">
+                                        {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                                    </div>
+                                    <p className="text-base font-medium">{user.name}</p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        handleSignOut();
+                                        closeMenu();
+                                    }}
+                                    className="mt-2 px-6 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors duration-300 shadow-md hover:shadow-lg"
+                                >
+                                    Sign out
+                                </button>
+                            </div>
+                        )}
                         
                         {/* Contact section in mobile menu */}
                         <div className="w-full flex flex-col items-center space-y-4">

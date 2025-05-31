@@ -1,11 +1,10 @@
 "use client"
 import React, { useEffect, useState, useCallback } from 'react'
-import { useUser } from '@clerk/nextjs'
 import axios from 'axios'
 import CourseCardItem from './CourseCardItem'
 
 function CourseList() {
-    const { user } = useUser();
+    const [user, setUser] = useState(null);
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,9 +26,21 @@ function CourseList() {
         return () => clearInterval(intervalId);
     }, [courses, refreshCourses]);
 
+    // Get user from session storage
+    useEffect(() => {
+        const userData = sessionStorage.getItem('prepmate_user');
+        if (userData) {
+            try {
+                setUser(JSON.parse(userData));
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+            }
+        }
+    }, []);
+    
     // Get the course list
     useEffect(() => {
-        if (user) {
+        if (user?.email) {
             GetCourseList();
         }
     }, [user, refreshFlag]);
@@ -40,7 +51,7 @@ function CourseList() {
             setError(null);
             
             const result = await axios.post('/api/courses', {
-                createdBy: user?.primaryEmailAddress?.emailAddress
+                createdBy: user.email
             });
             
             console.log('Courses loaded:', result.data.result);

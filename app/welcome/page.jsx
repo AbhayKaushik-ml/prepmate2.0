@@ -2,49 +2,93 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Manrope } from 'next/font/google';
 
 const manrope = Manrope({ subsets: ['latin'] });
 
 export default function WelcomePage() {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState('');
   const router = useRouter();
-  const { isSignedIn } = useUser();
   const containerRef = useRef(null);
 
   useEffect(() => {
     setIsMounted(true);
     
-    // Redirect to dashboard if already signed in
-    if (isSignedIn) {
+    // Check if user is already in session storage
+    const user = sessionStorage.getItem('prepmate_user');
+    if (user) {
       router.push('/dashboard');
     }
-  }, [isSignedIn, router]);
+  }, [router]);
+
+  // Email validation function
+  const isValidEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email) && email.toLowerCase().endsWith('gmail.com');
+  };
 
   const handleGetStarted = () => {
     if (isAnimating) return;
-    
-    if (!isExpanded) {
-      setIsAnimating(true);
-      setIsExpanded(true);
-      setTimeout(() => setIsAnimating(false), 300);
-    }
-  };
-
-  const handleOptionClick = (type) => {
-    router.push('/sign-in');
-  };
-
-  const handleClose = () => {
-    if (isAnimating) return;
-    
     setIsAnimating(true);
-    setIsExpanded(false);
+    setShowRegistration(true);
     setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    
+    // Validate inputs
+    if (!name.trim()) {
+      setFormError('Please enter your name');
+      return;
+    }
+    
+    if (!isValidEmail(email)) {
+      setFormError('Please enter a valid Gmail address');
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      // Register user in the database
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim()
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to register');
+      }
+      
+      const userData = await response.json();
+      
+      // Store user data in session storage
+      sessionStorage.setItem('prepmate_user', JSON.stringify(userData));
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Registration error:', error);
+      setFormError(error.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isMounted) return null;
@@ -126,13 +170,13 @@ export default function WelcomePage() {
 
           {/* CTA Button */}
           <motion.div 
-            className="relative"
+            className="relative w-full flex justify-center"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 1.5 }}
           >
             <AnimatePresence>
-              {!isExpanded ? (
+              {!showRegistration ? (
                 <motion.button
                   key="get-started"
                   className="bg-[#9B51E0] hover:bg-[#7F3FD9] text-white font-semibold text-lg md:text-xl px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-[#9B51E0]/30"
@@ -147,68 +191,79 @@ export default function WelcomePage() {
                 </motion.button>
               ) : (
                 <motion.div 
-                  key="expanded-options"
-                  className="relative"
+                  key="registration-form"
+                  className="relative max-w-md w-full mx-auto"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
                   ref={containerRef}
                 >
-                  <div className="relative bg-gradient-to-r from-[#C694FF] to-[#9B51E0] p-0.5 rounded-full">
-                    <div className="bg-black rounded-full p-1">
-                      <div className="flex flex-col md:flex-row gap-4 p-2">
-                        <motion.button
-                          onClick={() => handleOptionClick('flashcard')}
-                          className="bg-[#C694FF] hover:bg-[#B576FF] text-black font-semibold text-base md:text-lg px-6 py-3 rounded-full transition-all duration-300 flex-1 flex flex-col items-center justify-center min-w-[180px]"
-                          whileHover={{ y: -2, boxShadow: '0 5px 15px rgba(198, 148, 255, 0.4)' }}
+                  <div className="relative bg-gradient-to-r from-[#C694FF] to-[#9B51E0] p-0.5 rounded-2xl">
+                    <div className="bg-gray-900 rounded-2xl p-6">
+                      <h3 className="text-2xl font-bold text-white mb-6 text-center">Create Your Account</h3>
+                      
+                      {formError && (
+                        <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm">
+                          {formError}
+                        </div>
+                      )}
+                      
+                      <form onSubmit={handleSubmit} className="space-y-5">
+                        <div>
+                          <label htmlFor="name" className="block text-gray-300 mb-2 text-sm">Full Name</label>
+                          <input
+                            id="name"
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#9B51E0]"
+                            placeholder="Enter your name"
+                            required
+                          />
+                        </div>
+                        
+                        <div>
+                          <label htmlFor="email" className="block text-gray-300 mb-2 text-sm">Gmail Address</label>
+                          <input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#9B51E0]"
+                            placeholder="you@gmail.com"
+                            required
+                          />
+                          <p className="text-xs text-gray-500 mt-1">We only accept Gmail addresses</p>
+                        </div>
+                        
+                        <button
+                          type="submit"
+                          disabled={isLoading}
+                          className="w-full bg-[#9B51E0] hover:bg-[#7F3FD9] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:translate-y-[-2px] disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                          <span className="font-bold font-['Integra_CF'] uppercase">Flashcard</span>
-                          <span className="text-xs text-gray-800">AI-powered cards</span>
-                        </motion.button>
-                        <div className="h-px w-full md:h-12 md:w-px bg-gray-700 my-1 md:my-0 md:mx-2" />
-                        <motion.button
-                          onClick={() => handleOptionClick('quiz')}
-                          className="bg-[#9B51E0] hover:bg-[#7F3FD9] text-white font-semibold text-base md:text-lg px-6 py-3 rounded-full transition-all duration-300 flex-1 flex flex-col items-center justify-center min-w-[180px]"
-                          whileHover={{ y: -2, boxShadow: '0 5px 15px rgba(155, 81, 224, 0.4)' }}
-                        >
-                          <span className="font-bold font-['Integra_CF'] uppercase">Quiz</span>
-                          <span className="text-xs text-gray-200">Instant question sets</span>
-                        </motion.button>
-                      </div>
+                          {isLoading ? (
+                            <span className="flex items-center justify-center">
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Processing...
+                            </span>
+                          ) : (
+                            'Continue to Dashboard'
+                          )}
+                        </button>
+                      </form>
                     </div>
                   </div>
-                  <motion.button
-                    onClick={handleClose}
-                    className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-[#C694FF] flex items-center justify-center text-black hover:bg-white transition-colors"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    aria-label="Close options"
-                  >
-                    ×
-                  </motion.button>
                 </motion.div>
               )}
             </AnimatePresence>
           </motion.div>
         </motion.div>
 
-        {/* Scroll Prompt */}
-        <motion.div 
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 2 }}
-        >
-          <span className="text-[#C694FF] text-sm mb-2">Scroll to explore</span>
-          <div className="w-6 h-10 border-2 border-[#C694FF] rounded-full flex justify-center p-1">
-            <motion.div
-              className="w-1 h-2 bg-[#C694FF] rounded-full"
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          </div>
-        </motion.div>
+        {/* No scroll prompt - removed */}
       </main>
 
       <style jsx global>{`

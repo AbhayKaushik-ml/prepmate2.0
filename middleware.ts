@@ -1,46 +1,45 @@
 import { NextResponse } from 'next/server';
-import { getAuth } from '@clerk/nextjs/server';
 
-// This is a simplified middleware that will prevent redirect loops
-export default function middleware(req) {
-  // Define public paths that don't require authentication
-  const publicPaths = [
-    '/',
-    '/sign-in',
-    '/sign-up',
-    '/api',
-    '/course',
-    '/dashboard',
-    '/prepai',
-    '/welcome',
-    '/favicon.ico',
-    '/_next'
-  ];
+// Define public routes that don't require authentication
+const publicPaths = [
+  '/',
+  '/welcome',
+  '/api',
+  '/favicon.ico',
+  '/_next',
+  '/fonts',
+  '/images'
+];
 
+export default async function middleware(req) {
+  // Get the pathname of the request
   const { pathname } = req.nextUrl;
   
-  // Check if the current path is public
+  // Check if the path is public
   const isPublicPath = publicPaths.some(path => 
     pathname === path || pathname.startsWith(`${path}/`)
   );
 
-  // Always allow public paths
+  // If it's a public path, no need to check authentication
   if (isPublicPath) {
     return NextResponse.next();
   }
-
-  // For non-public paths, get auth state but don't redirect
-  // This prevents redirect loops while still allowing Clerk's client-side redirects
-  const { userId } = getAuth(req);
   
-  // Simply continue the request, let client-side handle auth
+  // For API routes, allow access without redirection
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+  
+  // For all other routes, we'll handle authentication client-side
+  // using the session storage in each component
   return NextResponse.next();
 }
 
-// Only run middleware on routes that might need protection
 export const config = {
   matcher: [
-    // Skip Next.js static files and images
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
   ],
-};
+}

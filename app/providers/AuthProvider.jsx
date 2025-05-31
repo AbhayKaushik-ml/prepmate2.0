@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
 
 // Create a context for authentication state
 const AuthContext = createContext(null);
@@ -16,15 +15,16 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const { user, isLoaded, isSignedIn } = useUser();
+  const [user, setUser] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [dbUser, setDbUser] = useState(null);
   const [isDbUserLoaded, setIsDbUserLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Effect to load user data from your Neon/Drizzle database when Clerk user is loaded
+  // Effect to load user data from your Neon/Drizzle database when user is loaded
   useEffect(() => {
     const syncUserWithDatabase = async () => {
-      if (!isLoaded) return; // Wait for Clerk to load
+      if (!isLoaded) return; // Wait for user to load
 
       if (!isSignedIn || !user) {
         // User is not signed in, clear any stored user data
