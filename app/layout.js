@@ -1,6 +1,5 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { AuthProvider } from "./providers/AuthProvider";
 
 const geistSans = localFont({
@@ -21,7 +20,6 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
           <script
@@ -55,6 +53,5 @@ export default function RootLayout({ children }) {
           </AuthProvider>
         </body>
       </html>
-    </ClerkProvider>
   );
 }
