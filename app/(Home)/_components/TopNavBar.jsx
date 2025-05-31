@@ -32,9 +32,26 @@ function TopNavBar() {
             path: "/prepai",
         },
     ];
+    
+    // Social links for Contact dropdown
+    const socialLinks = [
+        {
+            id: 1,
+            name: "LinkedIn",
+            path: "https://www.linkedin.com/in/abhaykaushik-dev",
+            icon: "/linkedin.webp"
+        },
+        {
+            id: 2,
+            name: "GitHub",
+            path: "https://github.com/AbhayKaushik-ml",
+            icon: "/GitHub.png"
+        }
+    ];
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [darkMode, setDarkMode] = useState(false);
+    const [isContactOpen, setIsContactOpen] = useState(false);
     const pathname = usePathname();
 
     // Check dark mode on component mount
@@ -113,10 +130,10 @@ function TopNavBar() {
                                 key={item.id} 
                                 href={item.path}
                                 className={`
-                                    relative px-5 py-2 rounded-full text-base font-medium tracking-wide transition-all duration-300
+                                    relative px-5 py-2 text-base font-medium tracking-wide transition-all duration-300
                                     ${pathname === item.path || pathname.startsWith(item.path + '/') || (pathname === '/' && item.path === '/dashboard')
-                                        ? "bg-purple-600 text-white shadow-md shadow-purple-500/30" 
-                                        : "text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-700 dark:hover:text-purple-400"}
+                                        ? "text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400" 
+                                        : "text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 hover:border-b-2 hover:border-purple-600 dark:hover:border-purple-400"}
                                     focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
                                 `}
                                 aria-current={pathname === item.path || (pathname === '/' && item.path === '/dashboard') ? "page" : undefined}
@@ -124,6 +141,45 @@ function TopNavBar() {
                                 {item.name}
                             </Link>
                         ))}
+                        
+                        {/* Contact dropdown */}
+                        <div className="relative">
+                            <button 
+                                onClick={() => setIsContactOpen(!isContactOpen)}
+                                onBlur={() => setTimeout(() => setIsContactOpen(false), 100)}
+                                className="relative px-5 py-2 rounded-full text-base font-medium tracking-wide transition-all duration-300
+                                    bg-blue-600 text-white shadow-md shadow-blue-500/30 hover:bg-blue-700
+                                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                aria-expanded={isContactOpen}
+                            >
+                                Contact
+                            </button>
+                            
+                            {isContactOpen && (
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg py-2 z-50 border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-all duration-200 ease-out scale-100 opacity-100">
+                                    {socialLinks.map((link) => (
+                                        <a 
+                                            key={link.id}
+                                            href={link.path}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 cursor-pointer active:scale-95"
+                                        >
+                                            <div className="w-6 h-6 mr-3 flex-shrink-0">
+                                                <Image 
+                                                    src={link.icon} 
+                                                    alt={link.name} 
+                                                    width={24} 
+                                                    height={24} 
+                                                    className="object-contain"
+                                                />
+                                            </div>
+                                            <span className="text-gray-800 dark:text-gray-200">{link.name}</span>
+                                        </a>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </nav>
                     
                     {/* User button and Dark mode toggle - desktop */}
@@ -224,10 +280,10 @@ function TopNavBar() {
                                 key={item.id} 
                                 href={item.path}
                                 className={`
-                                    text-lg font-medium px-6 py-3 rounded-full transition-all duration-150
+                                    text-lg font-medium px-6 py-3 transition-all duration-150
                                     ${pathname === item.path || pathname.startsWith(item.path + '/') || (pathname === '/' && item.path === '/dashboard')
-                                        ? "bg-purple-600 text-white shadow-md shadow-purple-500/30" 
-                                        : "text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-700 dark:hover:text-purple-400"}
+                                        ? "text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400" 
+                                        : "text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 hover:border-b-2 hover:border-purple-600 dark:hover:border-purple-400"}
                                     focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
                                 `}
                                 onClick={closeMenu}
@@ -237,6 +293,35 @@ function TopNavBar() {
                                 {item.name}
                             </Link>
                         ))}
+                        
+                        {/* Contact section in mobile menu */}
+                        <div className="w-full flex flex-col items-center space-y-4">
+                            <div className="text-lg font-medium px-6 py-3 rounded-full bg-blue-600 text-white shadow-md shadow-blue-500/30">
+                                Contact
+                            </div>
+                            <div className="flex justify-center space-x-6 w-full">
+                                {socialLinks.map((link) => (
+                                    <a 
+                                        key={link.id}
+                                        href={link.path}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex flex-col items-center p-3 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-all duration-200 cursor-pointer active:scale-95"
+                                    >
+                                        <div className="w-10 h-10 mb-2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md flex items-center justify-center">
+                                            <Image 
+                                                src={link.icon} 
+                                                alt={link.name} 
+                                                width={24} 
+                                                height={24} 
+                                                className="object-contain"
+                                            />
+                                        </div>
+                                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{link.name}</span>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
                     </nav>
                 </div>
             )}
