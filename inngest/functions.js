@@ -1,4 +1,4 @@
-import { generateNotes,GenerateQuizAiModel,GenerateStudyTypeContentAiModel } from "@/configs/AiModel";
+import { generateNotes, GenerateStudyTypeContentAiModel } from "@/configs/AiModel";
 import { inngest } from "./client";
 import { CHAPTER_NOTES_TABLE, STUDY_MATERIAL_TABLE, STUDY_TYPE_CONTENT_TABLE } from "@/configs/schema";
 import { eq } from "drizzle-orm";
@@ -69,10 +69,9 @@ export const CreateNewUser=inngest.createFunction(
     async({event,step})=>{
       const {studyType,prompt,courseId,recordId}=event.data; 
 
-      const AiResult= await step.run('Generating Flashcard using AI',async()=>{
-        const result=studyType=='Flashcard'?await GenerateStudyTypeContentAiModel.sendMessage(prompt):
-        await GenerateQuizAiModel.sendMessage(prompt);
-        const AIResult= JSON.parse(result.response.text());
+      const AiResult= await step.run('Generating Content using AI',async()=>{
+        const result = await GenerateStudyTypeContentAiModel.sendMessage(prompt);
+        const AIResult = JSON.parse(result.response.text());
         return AIResult;
       })
 
