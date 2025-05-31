@@ -5,7 +5,6 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/course(.*)',
   '/dashboard(.*)',
-  '/browse',
   '/prepai',
   '/api/user'  // Add the user API endpoint as a public route
 ])

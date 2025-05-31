@@ -20,24 +20,18 @@ function SideBarNav() {
     const menulist = [
         {
             id: 1,
-            name: "Browse",
-            icon: Search,
-            path: "/browse",
-        },
-        {
-            id: 2,
             name: "Dashboard",
             icon: Layout,
             path: "/dashboard",
         },
         {
-            id: 3,
+            id: 2,
             name: "Profile",
             icon: User,
             path: "/profile",
         },
         {
-            id: 4,
+            id: 3,
             name: "prepai",
             icon: Bot,
             path: "/prepai",
@@ -169,7 +163,7 @@ function SideBarNav() {
                             return (
                                 <Link 
                                     key={course.id} 
-                                    href={`/course-preview/${course.slug}`}
+                                    href={`/dashboard`}
                                     className="group"
                                 >
                                     <div className="flex items-center p-2 pl-3 text-sm text-gray-600 dark:text-gray-300 hover:bg-blue-100/20 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-300">

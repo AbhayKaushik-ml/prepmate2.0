@@ -1,17 +1,15 @@
 import React from 'react'
-import SideBarNav from '../_components/SideBarNav'
-import Header from '../_components/Header'
+import TopNavBar from '../_components/TopNavBar'
 
 function Homelayout({children}) {
   return (
     <div className="bg-white dark:bg-black bg-gradient-to-r dark:from-black dark:to-gray-900 from-gray-50 to-white min-h-screen">
-      <div className='h-full w-64 flex-col fixed inset-y-0 z-50 shadow-xl backdrop-blur-lg'>
-        <SideBarNav/>
-      </div>
-      <Header/>
+      <TopNavBar />
 
-      <div className='ml-64 p-8'>
-        {children}
+      <div className="flex justify-center w-full px-4 sm:px-6 pt-8 pb-16">
+        <div className="w-full max-w-5xl">
+          {children}
+        </div>
       </div>
     </div>
   )

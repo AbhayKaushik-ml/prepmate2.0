@@ -51,7 +51,7 @@ export async function POST(req) {
         createdBy: createdBy,
         topic: topic,
         courseLayout: aiResult,
-        status: 'New',
+        status: 'Ready', // Set status to Ready immediately - no notes generation needed
       }).returning();
 
       console.log('Course outline saved:', dbResult[0]);

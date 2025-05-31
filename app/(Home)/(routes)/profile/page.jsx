@@ -100,7 +100,7 @@ function ProfilePage() {
     <div className="container mx-auto p-6 max-w-6xl">
       {/* Back button */}
       <div className="mb-6">
-        <Link href="/browse" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+        <Link href="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
           <ChevronLeft size={20} className="mr-1" />
           <span>Back to Courses</span>
         </Link>
@@ -188,7 +188,7 @@ function ProfilePage() {
                       
                       <div className="flex justify-between items-center mt-4">
                         <Link
-                          href={`/course-preview/${course.slug}`}
+                          href="/dashboard"
                           className="text-sm py-1.5 px-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
                         >
                           {progress > 0 ? 'Continue' : 'Start'}
@@ -212,7 +212,7 @@ function ProfilePage() {
               <h3 className="text-lg font-medium text-gray-600 dark:text-gray-300 mb-1">No Courses Enrolled</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">You haven't enrolled in any courses yet.</p>
               <Link 
-                href="/browse" 
+                href="/dashboard" 
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 Browse Courses
