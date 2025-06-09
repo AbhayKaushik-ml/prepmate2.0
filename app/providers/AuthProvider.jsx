@@ -99,7 +99,14 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Run the sync function when component mounts
-    syncUserWithDatabase();
+    syncUserWithDatabase().catch(error => {
+      console.error("Critical error in AuthProvider's syncUserWithDatabase promise:", error);
+      // Ensure loading states are reset even if the sync process fails critically
+      setUser(null);
+      setDbUser(null);
+      setIsDbUserLoaded(true); // Or false, depending on desired state on critical failure
+      setIsLoading(false);
+    });
   }, []);
 
   // Function to refresh user data from database
