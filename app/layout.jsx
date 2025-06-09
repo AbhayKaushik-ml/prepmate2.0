@@ -1,6 +1,6 @@
 import { Inter, Manrope } from 'next/font/google';
 import './globals.css';
-import { Providers } from './providers';
+import { AuthProvider } from './providers/AuthProvider';
 import FontLoader from './components/FontLoader';
 
 // Initialize fonts with subsets and display settings
@@ -71,9 +71,9 @@ export default function RootLayout({ children }) {
         <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className="min-h-screen bg-black text-white antialiased">
-        <Providers>
+        <AuthProvider>
           {children}
-        </Providers>
+        </AuthProvider>
       </body>
     </html>
   );
