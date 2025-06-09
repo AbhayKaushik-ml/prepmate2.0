@@ -56,12 +56,16 @@ export const AuthProvider = ({ children }) => {
           try {
             console.log('Fetching latest user data from database...');
             
-            // Get user data from API
-            const response = await fetch(`/api/user?email=${encodeURIComponent(userData.email)}`, {
-              method: 'GET',
+            // Get or create user data from API via POST
+            const response = await fetch(`/api/user`, {
+              method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
+              body: JSON.stringify({
+                email: userData.email,
+                name: userData.name || userData.email.split('@')[0]
+              }),
             });
 
             console.log('API response status:', response.status);
