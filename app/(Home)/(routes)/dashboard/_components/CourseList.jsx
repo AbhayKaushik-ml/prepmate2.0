@@ -55,7 +55,13 @@ function CourseList() {
             });
             
             console.log('Courses loaded:', result.data.result);
-            setCourses(result.data.result);
+            const coursesData = result.data.result;
+            if (Array.isArray(coursesData)) {
+                setCourses(coursesData);
+            } else {
+                console.warn('Courses data received from API is not an array. Defaulting to empty array. Data:', coursesData);
+                setCourses([]); 
+            }
         } catch (error) {
             console.error('Failed to load courses:', error);
             setError('Failed to load your courses. Please try again later.');

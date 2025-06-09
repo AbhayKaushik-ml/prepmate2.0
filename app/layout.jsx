@@ -41,8 +41,8 @@ export const metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico', // Updated to favicon.ico
+    apple: '/favicon.ico',    // Updated to favicon.ico
   },
   manifest: '/site.webmanifest',
 };
@@ -68,7 +68,6 @@ export default function RootLayout({ children }) {
         <FontLoader />
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-TileColor" content="#000000" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
       </head>
       <body className="min-h-screen bg-black text-white antialiased">
         <AuthProvider>

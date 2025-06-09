@@ -6,7 +6,7 @@ export default function FontLoader() {
   useEffect(() => {
     // Load the font after component mounts
     const link = document.createElement('link');
-    link.href = 'https://fonts.cdnfonts.com/css/integra-cf-3';
+    // link.href = 'https://fonts.cdnfonts.com/css/integra-cf-3'; // Commented out due to 404 error
     link.rel = 'stylesheet';
     link.media = 'all';
     document.head.appendChild(link);
