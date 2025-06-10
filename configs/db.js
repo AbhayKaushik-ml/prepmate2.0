@@ -15,9 +15,12 @@ function initializeDatabase() {
       };
     }
 
-    // Create the connection
+    // Create the connection with serverless-optimized settings
     const connectionString = process.env.NEON_DATABASE_URL;
-    const client = postgres(connectionString);
+    const client = postgres(connectionString, {
+      ssl: 'require',
+      max: 1 // Recommended for serverless environments to avoid exhausting connections
+    });
     return drizzle(client);
   } catch (error) {
     console.error('Error initializing database:', error);
