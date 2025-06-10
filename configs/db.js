@@ -1,25 +1,23 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
+import * as schema from './schema';
 
 let dbInstance;
 
 // This function provides a lazily-initialized database instance.
-export function getDbConnection() {
+export const getDbConnection = () => {
   if (!dbInstance) {
+    console.log("Attempting to create new database connection instance.");
     // Check for the database URL and throw a clear error if it's missing.
     if (!process.env.NEON_DATABASE_URL) {
+      console.error("FATAL: NEON_DATABASE_URL environment variable is not set.");
       throw new Error('FATAL: NEON_DATABASE_URL environment variable is not set.');
     }
-
-    const connectionString = process.env.NEON_DATABASE_URL;
-
-    // Configure the database client for a serverless environment.
-    const client = postgres(connectionString, {
-      ssl: 'require', // Required for Neon
-      max: 1,         // Recommended for serverless to avoid exhausting connections
-    });
-
-    dbInstance = drizzle(client);
+    console.log("NEON_DATABASE_URL is present. Initializing Neon connection.");
+    const sql = neon(process.env.NEON_DATABASE_URL);
+    console.log("Drizzling Neon connection with schema.");
+    dbInstance = drizzle(sql, { schema });
+    console.log("Database connection instance created successfully.");
   }
   return dbInstance;
-}
+};
