@@ -6,8 +6,11 @@ import { USER_TABLE } from '@/configs/schema';
 // Endpoint to get or create a user
 export async function POST(request) {
   try {
+    console.log("POST /api/user: Attempting to get DB connection.");
     const db = getDbConnection();
+    console.log("POST /api/user: DB connection obtained. Parsing request body.");
     const { email, name } = await request.json();
+    console.log(`POST /api/user: Request body parsed for email: ${email}`);
 
     if (!email) {
       return NextResponse.json({ error: 'Missing required email field' }, { status: 400 });
@@ -16,17 +19,22 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Only Gmail addresses are accepted' }, { status: 400 });
     }
 
+        console.log(`POST /api/user: Checking for existing user with email: ${email}`);
     const existingUser = await db.select().from(USER_TABLE).where(eq(USER_TABLE.email, email)).limit(1);
+    console.log(`POST /api/user: Found ${existingUser.length} existing users.`);
 
-    if (existingUser.length > 0) {
+        if (existingUser.length > 0) {
+      console.log("POST /api/user: User exists. Returning existing user data.");
       return NextResponse.json(existingUser[0], { status: 200 });
     }
 
+        console.log("POST /api/user: User does not exist. Creating new user...");
     const newUser = await db.insert(USER_TABLE).values({
       name: name || email.split('@')[0],
       email,
       isMember: false,
     }).returning();
+    console.log("POST /api/user: New user created successfully.");
 
     return NextResponse.json(newUser[0], { status: 201 });
 
