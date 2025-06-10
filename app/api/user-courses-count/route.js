@@ -1,10 +1,11 @@
-import { db } from "@/configs/db";
+import { getDbConnection } from "@/configs/db";
 import { STUDY_MATERIAL_TABLE } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
   try {
+    const db = getDbConnection();
     // Extract user email from URL query parameter
     const url = new URL(req.url);
     const userEmail = url.searchParams.get("email");

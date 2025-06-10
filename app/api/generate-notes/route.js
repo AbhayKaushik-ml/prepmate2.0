@@ -1,11 +1,12 @@
 // Import the AI model for generating notes
 import { courseOutline } from "@/configs/AiModel";
 import { NextResponse } from "next/server";
-import { db } from "@/configs/db";
+import { getDbConnection } from "@/configs/db";
 import { CHAPTER_NOTES_TABLE, STUDY_MATERIAL_TABLE } from "@/configs/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(req) {
+  const db = getDbConnection();
   try {
     const { courseId } = await req.json();
     

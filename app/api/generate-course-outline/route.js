@@ -1,9 +1,10 @@
 import { courseOutline } from "@/configs/AiModel";
 import { STUDY_MATERIAL_TABLE } from "@/configs/schema";
 import { NextResponse } from "next/server";
-import { db } from "@/configs/db";
+import { getDbConnection } from "@/configs/db";
 
 export async function POST(req) {
+  const db = getDbConnection();
   try {
     const { courseId, topic, studyType, difficultyLevel, createdBy } = await req.json();
 

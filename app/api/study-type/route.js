@@ -1,10 +1,11 @@
-import { db } from "@/configs/db";
+import { getDbConnection } from "@/configs/db";
 import { STUDY_TYPE_CONTENT_TABLE } from "@/configs/schema";
 import { eq, and } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
+    const db = getDbConnection();
     const { courseId, studyType } = await req.json();
     
     if (!courseId || !studyType) {

@@ -1,9 +1,10 @@
 import { CHAPTER_NOTES_TABLE } from "@/configs/schema";
 import { NextResponse } from "next/server";
-import { db } from "@/configs/db";
+import { getDbConnection } from "@/configs/db";
 import { eq } from "drizzle-orm";
 
 export async function GET(req) {
+    const db = getDbConnection();
     try {
         const reqUrl = req.url;
         const { searchParams } = new URL(reqUrl);

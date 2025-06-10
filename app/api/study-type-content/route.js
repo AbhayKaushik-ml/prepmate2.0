@@ -1,11 +1,12 @@
 // Import the AI model for generating flashcards
 import { GenerateStudyTypeContentAiModel } from "@/configs/AiModel";
 import { NextResponse } from "next/server";
-import { db } from "@/configs/db";
+import { getDbConnection } from "@/configs/db";
 import { STUDY_TYPE_CONTENT_TABLE, STUDY_MATERIAL_TABLE } from "@/configs/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(req) {
+  const db = getDbConnection();
   try {
     const { courseId, studyType } = await req.json();
     
@@ -59,7 +60,7 @@ export async function POST(req) {
     const chapters = course.courseLayout?.chapters;
     
     if (!chapters || !Array.isArray(chapters)) {
-      await updateStatusToFailed(courseId, studyType, "No chapters found in course");
+      await updateStatusToFailed(db, courseId, studyType, "No chapters found in course");
       return NextResponse.json({ error: "No chapters found in course" }, { status: 400 });
     }
     
@@ -90,7 +91,7 @@ export async function POST(req) {
       
       Ensure that the "correctAnswer" value exactly matches one of the options in the "options" array.`;
     } else {
-      await updateStatusToFailed(courseId, studyType, "Invalid study type");
+      await updateStatusToFailed(db, courseId, studyType, "Invalid study type");
       return NextResponse.json({ error: "Invalid study type" }, { status: 400 });
     }
     
@@ -110,7 +111,7 @@ export async function POST(req) {
           const fallbackFlashcards = generateFallbackFlashcards(chapterInfo);
           
           // Update with fallback content
-          await updateContentInDatabase(courseId, studyType, fallbackFlashcards);
+          await updateContentInDatabase(db, courseId, studyType, fallbackFlashcards);
           
           return NextResponse.json({ 
             success: true,
@@ -139,12 +140,12 @@ export async function POST(req) {
         flashcards = JSON.parse(jsonContent);
       } catch (e) {
         console.error('Error parsing JSON:', e);
-        await updateStatusToFailed(courseId, studyType, "Failed to parse flashcard content");
+        await updateStatusToFailed(db, courseId, studyType, "Failed to parse flashcard content");
         return NextResponse.json({ error: "Failed to parse flashcard content" }, { status: 500 });
       }
       
       // Update with successful content
-      await updateContentInDatabase(courseId, studyType, flashcards);
+      await updateContentInDatabase(db, courseId, studyType, flashcards);
       
       return NextResponse.json({ 
         success: true, 
@@ -155,7 +156,7 @@ export async function POST(req) {
       console.error(`Error generating ${studyType}:`, error);
       
       // Update status to "Failed"
-      await updateStatusToFailed(courseId, studyType, error.message);
+      await updateStatusToFailed(db, courseId, studyType, error.message);
       
       return NextResponse.json({ 
         error: `Failed to generate ${studyType}`,
@@ -175,7 +176,7 @@ export async function POST(req) {
 }
 
 // Helper function to update content in database
-async function updateContentInDatabase(courseId, studyType, content) {
+async function updateContentInDatabase(db, courseId, studyType, content) {
   await db.update(STUDY_TYPE_CONTENT_TABLE)
     .set({ 
       content: content,
@@ -190,7 +191,7 @@ async function updateContentInDatabase(courseId, studyType, content) {
 }
 
 // Helper function to update status to Failed
-async function updateStatusToFailed(courseId, studyType, errorMessage) {
+async function updateStatusToFailed(db, courseId, studyType, errorMessage) {
   await db.update(STUDY_TYPE_CONTENT_TABLE)
     .set({ 
       status: 'Failed',
