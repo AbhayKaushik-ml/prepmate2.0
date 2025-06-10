@@ -139,13 +139,13 @@ export default function WelcomePage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.6 }}
             >
-              <span className="text-5xl md:text-7xl font-bold text-[#9B51E0] font-['Integra_CF'] uppercase tracking-wider">
+              <span className="text-5xl md:text-7xl font-bold text-[#9B51E0] uppercase tracking-wider">
                 FLASHCARD
               </span>
-              <span className="text-5xl md:text-7xl font-bold text-white font-['Integra_CF'] uppercase tracking-wider">
+              <span className="text-5xl md:text-7xl font-bold text-white uppercase tracking-wider">
                 &
               </span>
-              <span className="text-5xl md:text-7xl font-bold text-[#9B51E0] font-['Integra_CF'] uppercase tracking-wider">
+              <span className="text-5xl md:text-7xl font-bold text-[#9B51E0] uppercase tracking-wider">
                 QUIZ
               </span>
             </motion.div>
