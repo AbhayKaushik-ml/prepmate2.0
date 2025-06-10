@@ -84,6 +84,10 @@ export const AuthProvider = ({ children }) => {
             } else {
               const errorText = await response.text();
               console.error('Failed to fetch user from database:', errorText);
+              // Clear invalid user from state and session storage
+              sessionStorage.removeItem('prepmate_user');
+              setUser(null);
+              setDbUser(null);
             }
           } catch (apiError) {
             console.error("API call failed:", apiError);
